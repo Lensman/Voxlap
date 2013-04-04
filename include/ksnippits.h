@@ -582,12 +582,11 @@ static inline long dmulrethigh (long b, long c, long a, long d)
 
 static inline void copybuf (void *s, void *d, long c)
 {
-	#ifdef NOASM
+	#if defined(NOASM)
 	int i;
 	for (i = 0;	i < c; i++)
 		((long *)d)[i] = ((long *)s)[i];
-	#else
-	#ifdef __GNUC__ //gcc inline asm
+	#elif defined(__GNUC__)
 	__asm__ __volatile__
 	(
 		"rep	movsl\n"
@@ -595,8 +594,7 @@ static inline void copybuf (void *s, void *d, long c)
 		: "S" (s), "D" (d), "c" (c)
 		:
 	);
-	#endif
-	#ifdef _MSC_VER //msvc inline asm
+	#elif defined(_MSC_VER)
 	_asm
 	{
 		push	esi
@@ -609,17 +607,15 @@ static inline void copybuf (void *s, void *d, long c)
 		pop	esi
 	}
 	#endif
-	#endif
 }
 
 static inline void clearbuf (void *d, long c, long a)
 {
-	#ifdef NOASM
+	#if defined(NOASM)
 	int i;
 	for (i = 0;	i < c; i++)
 		((long *)d)[i] = a;
-	#else
-	#ifdef __GNUC__ //gcc inline asm
+	#elif defined(__GNUC__)
 	__asm__ __volatile__
 	(
 		"rep	stosl\n"
@@ -627,8 +623,7 @@ static inline void clearbuf (void *d, long c, long a)
 		: "D" (d), "c" (c), "a" (a)
 		:
 	);
-	#endif
-	#ifdef _MSC_VER //msvc inline asm
+	#elif defined(_MSC_VER)
 	_asm
 	{
 		push	edi
@@ -639,20 +634,18 @@ static inline void clearbuf (void *d, long c, long a)
 		pop	edi
 	}
 	#endif
-	#endif
 }
 
 static inline unsigned long bswap (unsigned long a)
 {
-	#ifdef NOASM
-	#ifdef __GNUC__
+    /** @todo Aren't these all equivalent ? */
+	#if defined(NOASM)
+	#if defined(__GNUC__)
 	return __builtin_bswap32(a);
-	#endif
-	#ifdef _MSC_VER
+	#elif defined(_MSC_VER)
 	return _byteswap_ulong(a);
 	#endif
-	#else
-	#ifdef __GNUC__ //gcc inline asm
+	#elif defined(__GNUC__)//gcc inline asm
 	__asm__ __volatile__
 	(
 		"bswap	%[a]\n"
@@ -661,23 +654,20 @@ static inline unsigned long bswap (unsigned long a)
 		:
 	);
 	return a;
-	#endif
-	#ifdef _MSC_VER //msvc inline asm
+	#elif defined(_MSC_VER)
 	_asm
 	{
 		mov	eax, a
 		bswap	eax
 	}
 	#endif
-	#endif
 }
 
 static inline void clearMMX () // inserts opcode emms, used to avoid many compiler checks
 {
-	#ifdef __GNUC__
+	#if defined(__GNUC__)
 	__asm__ __volatile__ ("emms" : : : "cc");
-	#endif
-	#ifdef _MSC_VER
+	#elif defined(_MSC_VER)
 	_asm { emms }
 	#endif
 }
