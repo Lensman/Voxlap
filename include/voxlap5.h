@@ -31,24 +31,8 @@
 	#define EXTERN_VOXLAP extern
 #endif
 
-<<<<<<< HEAD
-// 3 dimensional points don't have power of 2 vector
-=======
-typedef struct { unsigned short x, y; } uspoint2d;
-typedef union
-{
-	struct { long x, y; };
-        long array[2];
-#ifdef __GNUC__
-	float vec __attribute__ ((vector_size (8)));
-#endif
-#ifdef _MSC_VER
-	__m64 vec;
-#endif
-} lpoint2d;
-typedef struct { float x, y; } point2d;
 
->>>>>>> fd6af33e0ba12ed51f3556e3c553b24d07900071
+// 3 dimensional points don't have power of 2 vector
 typedef struct { long x, y, z; } lpoint3d;
 typedef struct { float x, y, z; } point3d;
 typedef struct { double x, y, z; } dpoint3d;
@@ -61,21 +45,20 @@ typedef union
 	short vec __attribute__ ((vector_size (4)));
 	#endif
 	#ifdef _MSC_VER
-	//__ALIGN(16) __m32 vec;
-	unsigned short vec;
+	__ALIGN(16) __m32 vec;
+
 	#endif
 } uspoint2d;
-
 typedef union
 {
 	struct { long x, y; };
-	long array[2];
-	#ifdef __GNUC__
-	long vec __attribute__ ((vector_size (8)));
-	#endif
-	#ifdef _MSC_VER
+    long array[2];
+    #ifdef __GNUC__
+	float vec __attribute__ ((vector_size (8)));
+    #endif
+    #ifdef _MSC_VER
 	__ALIGN(16) __m64 vec;
-	#endif
+    #endif
 } lpoint2d;
 typedef union
 {
