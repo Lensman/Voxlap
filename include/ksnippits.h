@@ -55,11 +55,10 @@ void clearMMX ();
 
 static inline void fcossin (float a, float *c, float *s)
 {
-	#ifdef NOASM
+	#if defined(NOASM)
 	*c = cosf(a);
 	*s = cosf(a);
-	#else
-	#ifdef __GNUC__ //gcc inline asm
+	#elif defined(__GNUC__) && !defined(NOASM)
 	__asm__ __volatile__
 	(
 		"fsincos\n"
@@ -67,8 +66,7 @@ static inline void fcossin (float a, float *c, float *s)
 		:  "0" (a)
 		:
 	);
-	#endif
-	#ifdef _MSC_VER //msvc inline asm
+	#elif defined(_MSC_VER) && !defined(NOASM)
 	_asm
 	{
 		fld a
@@ -79,16 +77,14 @@ static inline void fcossin (float a, float *c, float *s)
 		fstp	dword ptr [eax]
 	}
 	#endif
-	#endif
 }
 
 static inline void dcossin (double a, double *c, double *s)
 {
-	#ifdef NOASM
+	#if defined(NOASM)
 	*c = cos(a);
 	*s = sin(a);
-	#else
-	#ifdef __GNUC__ //gcc inline asm
+	#elif defined(__GNUC__) && !defined(NOASM)
 	__asm__ __volatile__
 	(
 		"fsincos\n"
@@ -96,8 +92,7 @@ static inline void dcossin (double a, double *c, double *s)
 		:  "0" (a)
 		:
 	);
-	#endif
-	#ifdef _MSC_VER //msvc inline asm
+	#elif defined(_MSC_VER) && !defined(NOASM)
 	_asm
 	{
 		fld	a
@@ -108,15 +103,13 @@ static inline void dcossin (double a, double *c, double *s)
 		fstp	qword ptr [eax]
 	}
 	#endif
-	#endif
 }
 
 static inline void ftol (float f, long *a)
 {
-	#ifdef NOASM
+	#if defined(NOASM)
 	*a = (long) f;
-	#else
-	#ifdef __GNUC__ //gcc inline asm
+	#elif defined(__GNUC__) && !defined(NOASM)
 	__asm__ __volatile__
 	(
 		"fistpl	(%[a])"
@@ -124,8 +117,7 @@ static inline void ftol (float f, long *a)
 		: "t" (f), [a] "r" (a)
 		:
 	);
-	#endif
-	#ifdef _MSC_VER //msvc inline asm
+	#elif defined(_MSC_VER) && !defined(NOASM)
 	_asm
 	{
 		mov	eax, a
@@ -133,15 +125,13 @@ static inline void ftol (float f, long *a)
 		fistp	dword ptr [eax]
 	}
 	#endif
-	#endif
 }
 
 static inline void dtol (double d, long *a)
 {
-	#ifdef NOASM
+	#if defined(NOASM)
 	*a = (long) d;
-	#else
-	#ifdef __GNUC__ //gcc inline asm
+	#elif defined(__GNUC__) && !defined(NOASM)
 	__asm__ __volatile__
 	(
 		"fistpl	(%[a])"
@@ -149,8 +139,7 @@ static inline void dtol (double d, long *a)
 		: "t" (d), [a] "r" (a)
 		:
 	);
-	#endif
-	#ifdef _MSC_VER //msvc inline asm
+	#elif defined(_MSC_VER) && !defined(NOASM)
 	_asm
 	{
 		mov	eax, a
@@ -158,17 +147,16 @@ static inline void dtol (double d, long *a)
 		fistp	dword ptr [eax]
 	}
 	#endif
-	#endif
 }
 
 
 static inline double dbound (double d, double dmin, double dmax)
 {
-	#ifdef NOASM
+	#if defined(NOASM)
 	return BOUND(d, dmin, dmax);
 	#else
+	#if defined(__GNUC__) && !defined(NOASM)
 	//WARNING: This ASM code requires >= PPRO
-	#ifdef __GNUC__ //gcc inline asm
 	__asm__ __volatile__
 	(
 		"fucomi	%[dmin], %[d]\n"      //if (d < dmin)
@@ -180,8 +168,7 @@ static inline double dbound (double d, double dmin, double dmax)
 		:     "0"  (d), [dmin] "f" (dmin), [dmax] "f" (dmax)
 		:
 	);
-	#endif
-	#ifdef _MSC_VER //msvc inline asm
+	#elif defined(_MSC_VER) && !defined(NOASM)
 	_asm
 	{
 		fld	dmin
@@ -202,10 +189,9 @@ static inline double dbound (double d, double dmin, double dmax)
 
 static inline long mulshr16 (long a, long d)
 {
-	#ifdef NOASM
+	#if defined(NOASM)
 	return (long)(((int64_t)a * (int64_t)d) >> 16);
-	#else
-	#ifdef __GNUC__ //gcc inline asm
+	#elif defined(__GNUC__) && !defined(NOASM)
 	__asm__ __volatile__
 	(
 		"imul	%[d]\n"
@@ -215,8 +201,7 @@ static inline long mulshr16 (long a, long d)
 		: "edx"
 	);
 	return a;
-	#endif
-	#ifdef _MSC_VER //msvc inline asm
+	#elif defined(_MSC_VER) && !defined(NOASM)
 	_asm
 	{
 		mov	eax, a
@@ -225,15 +210,13 @@ static inline long mulshr16 (long a, long d)
 		shrd	eax, edx, 16
 	}
 	#endif
-	#endif
 }
 
 static inline long mulshr24 (long a, long d)
 {
-	#ifdef NOASM
+	#if defined(NOASM)
 	return (long)(((int64_t)a * (int64_t)d) >> 24);
-	#else
-	#ifdef __GNUC__ //gcc inline asm
+	#elif defined(__GNUC__) && !defined(NOASM)
 	__asm__ __volatile__
 	(
 		"imul	%[d]\n"
@@ -243,8 +226,7 @@ static inline long mulshr24 (long a, long d)
 		: "edx"
 	);
 	return a;
-	#endif
-	#ifdef _MSC_VER //msvc inline asm
+	#elif defined(_MSC_VER) && !defined(NOASM)
 	_asm
 	{
 		mov eax, a
@@ -253,15 +235,13 @@ static inline long mulshr24 (long a, long d)
 		shrd eax, edx, 24
 	}
 	#endif
-	#endif
 }
 
 static inline long mulshr32 (long a, long d)
 {
-	#ifdef NOASM
+	#if defined(NOASM)
 	return (long)(((int64_t)a * (int64_t)d) >> 32);
-	#else
-	#ifdef __GNUC__ //gcc inline asm
+	#elif defined(__GNUC__) && !defined(NOASM)
 	__asm__ __volatile__
 	(
 		"imul %%edx"
@@ -269,8 +249,7 @@ static inline long mulshr32 (long a, long d)
 		:  "a" (a)
 	);
 	return d;
-	#endif
-	#ifdef _MSC_VER //msvc inline asm
+	#elif defined(_MSC_VER) && !defined(NOASM)
 	_asm
 	{
 		mov eax, a
@@ -278,15 +257,13 @@ static inline long mulshr32 (long a, long d)
 		mov eax, edx
 	}
 	#endif
-	#endif
 }
 
 static inline int64_t mul64 (long a, long d)
 {
-	#ifdef NOASM
+	#if defined(NOASM)
 	return (int64_t)a * (int64_t)d;
-	#else
-	#ifdef __GNUC__ //gcc inline asm
+	#elif defined(__GNUC__) && !defined(NOASM)
 	int64_t out64;
 	__asm__ __volatile__
 	(
@@ -296,23 +273,20 @@ static inline int64_t mul64 (long a, long d)
 		:
 	);
 	return out64;
-	#endif
-	#ifdef _MSC_VER //msvc inline asm
+	#elif defined(_MSC_VER) && !defined(NOASM)
 	_asm
 	{
 		mov	eax, a
 		imul	d
 	}
 	#endif
-	#endif
 }
 
 static inline long shldiv16 (long a, long b)
 {
-	#ifdef NOASM
+	#if defined(NOASM)
 	return (long)(((int64_t)a << 16) / (int64_t)b);
-	#else
-	#ifdef __GNUC__ //gcc inline asm
+	#elif defined(__GNUC__) && !defined(NOASM)
 	__asm__ __volatile__
 	(
 		"mov	%[a], %%edx\n"
@@ -324,8 +298,7 @@ static inline long shldiv16 (long a, long b)
 		: "edx"
 	);
 	return a;
-	#endif
-	#ifdef _MSC_VER //msvc inline asm
+	#elif defined(_MSC_VER) && !defined(NOASM)
 	_asm
 	{
 		mov	eax, a
@@ -335,15 +308,13 @@ static inline long shldiv16 (long a, long b)
 		idiv	b
 	}
 	#endif
-	#endif
 }
 
 static inline long isshldiv16safe (long a, long b)
 {
-	#ifdef NOASM
+	#if defined(NOASM)
 	return ((uint32_t)((-abs(b) - ((-abs(a)) >> 14)))) >> 31;
-	#else
-	#ifdef __GNUC__ //gcc inline asm
+	#elif defined(__GNUC__) && !defined(NOASM)
 	__asm__ __volatile__
 	(
 		".intel_syntax prefix\n"
@@ -368,8 +339,7 @@ static inline long isshldiv16safe (long a, long b)
 		: "cc"
 	);
 	return b;
-	#endif
-	#ifdef _MSC_VER //msvc inline asm
+	#elif defined(_MSC_VER) && !defined(NOASM)
 	_asm
 	{
 		mov	edx, a
@@ -391,15 +361,13 @@ static inline long isshldiv16safe (long a, long b)
 		shr	eax, 31
 	}
 	#endif
-	#endif
 }
 
 static inline long umulshr32 (long a, long d)
 {
-	#ifdef NOASM
+	#if defined(NOASM)
 	return (long)(((uint64_t)a * (uint64_t)d) >> 32);
-	#else
-	#ifdef __GNUC__ //gcc inline asm
+	#elif defined(__GNUC__) && !defined(NOASM)
 	__asm__ __volatile__
 	(
 		"mul	%%edx\n" //dword ptr
@@ -408,8 +376,7 @@ static inline long umulshr32 (long a, long d)
 		:
 	);
 	return d;
-	#endif
-	#ifdef _MSC_VER //msvc inline asm
+	#elif defined(_MSC_VER) && !defined(NOASM)
 	_asm
 	{
 		mov	eax, a
@@ -417,15 +384,13 @@ static inline long umulshr32 (long a, long d)
 		mov	eax, edx
 	}
 	#endif
-	#endif
 }
 
 static inline long scale (long a, long d, long c)
 {
-	#ifdef NOASM
+	#if defined(NOASM)
 	return (long)((int64_t)a * (int64_t)d / (int64_t)c);
-	#else
-	#ifdef __GNUC__ //gcc inline asm
+	#elif defined(__GNUC__) && !defined(NOASM)
 	__asm__ __volatile__
 	(
 		"imul	%[d]\n"
@@ -435,8 +400,7 @@ static inline long scale (long a, long d, long c)
 		:
 	);
 	return a;
-	#endif
-	#ifdef _MSC_VER //msvc inline asm
+	#elif defined(_MSC_VER) && !defined(NOASM)
 	_asm
 	{
 		mov	eax, a
@@ -444,15 +408,13 @@ static inline long scale (long a, long d, long c)
 		idiv	c
 	}
 	#endif
-	#endif
 }
 
 static inline long dmulshr0 (long a, long d, long s, long t)
 {
-	#ifdef NOASM
+	#if defined(NOASM)
 	return (long)((int64_t)a*(int64_t)d + (int64_t)s*(int64_t)t);
-	#else
-	#ifdef __GNUC__ //gcc inline asm
+	#elif defined(__GNUC__) && !defined(NOASM)
 	__asm__ __volatile__
 	(
 		"imul	%[d]\n"
@@ -468,8 +430,7 @@ static inline long dmulshr0 (long a, long d, long s, long t)
 		:
 	);
 	return a + s;
-	#endif
-	#ifdef _MSC_VER //msvc inline asm
+	#elif defined(_MSC_VER) && !defined(NOASM)
 	_asm
 	{
 		mov	eax, a
@@ -480,15 +441,13 @@ static inline long dmulshr0 (long a, long d, long s, long t)
 		add	eax, ecx
 	}
 	#endif
-	#endif
 }
 
 static inline long dmulshr22 (long a, long b, long c, long d)
 {
-	#ifdef NOASM
+	#if defined(NOASM)
 	return (long)(((((int64_t)a)*((int64_t)b)) + (((int64_t)c)*((int64_t)d))) >> 22);
-	#else
-	#ifdef __GNUC__ //gcc inline asm
+	#elif defined(__GNUC__) && !defined(NOASM)
 	__asm__ __volatile__
 	(
 		"imul	%[b]\n"
@@ -513,8 +472,7 @@ static inline long dmulshr22 (long a, long b, long c, long d)
 		:
 	);
 	return c;
-	#endif
-	#ifdef _MSC_VER //msvc inline asm
+	#elif defined(_MSC_VER) && !defined(NOASM)
 	_asm
 	{
 		mov	eax, a
@@ -529,15 +487,14 @@ static inline long dmulshr22 (long a, long b, long c, long d)
 		shrd	eax, edx, 22
 	}
 	#endif
-	#endif
+
 }
 
 static inline long dmulrethigh (long b, long c, long a, long d)
 {
-	#ifdef NOASM
+	#if defined(NOASM)
 	return (long)(((int64_t)b*(int64_t)c - (int64_t)a*(int64_t)d) >> 32);
-	#else
-	#ifdef __GNUC__ //gcc inline asm
+	#elif defined(__GNUC__) && !defined(NOASM)
 	__asm__ __volatile__
 	(
 		"imul	%[d]\n"
@@ -561,8 +518,7 @@ static inline long dmulrethigh (long b, long c, long a, long d)
 		:
 	);
 	return c;
-	#endif
-	#ifdef _MSC_VER //msvc inline asm
+	#elif defined(_MSC_VER) && !defined(NOASM)
 	_asm
 	{
 		mov	eax, a
@@ -577,7 +533,6 @@ static inline long dmulrethigh (long b, long c, long a, long d)
 		mov	eax, edx
 	}
 	#endif
-	#endif
 }
 
 static inline void copybuf (void *s, void *d, long c)
@@ -586,7 +541,7 @@ static inline void copybuf (void *s, void *d, long c)
 	int i;
 	for (i = 0;	i < c; i++)
 		((long *)d)[i] = ((long *)s)[i];
-	#elif defined(__GNUC__)
+	#elif defined(__GNUC__) && !defined(NOASM)
 	__asm__ __volatile__
 	(
 		"rep	movsl\n"
@@ -594,7 +549,7 @@ static inline void copybuf (void *s, void *d, long c)
 		: "S" (s), "D" (d), "c" (c)
 		:
 	);
-	#elif defined(_MSC_VER)
+	#elif defined(_MSC_VER) && !defined(NOASM)
 	_asm
 	{
 		push	esi
@@ -615,7 +570,7 @@ static inline void clearbuf (void *d, long c, long a)
 	int i;
 	for (i = 0;	i < c; i++)
 		((long *)d)[i] = a;
-	#elif defined(__GNUC__)
+	#elif defined(__GNUC__) && !defined(NOASM)
 	__asm__ __volatile__
 	(
 		"rep	stosl\n"
@@ -623,7 +578,7 @@ static inline void clearbuf (void *d, long c, long a)
 		: "D" (d), "c" (c), "a" (a)
 		:
 	);
-	#elif defined(_MSC_VER)
+	#elif defined(_MSC_VER) && !defined(NOASM)
 	_asm
 	{
 		push	edi
@@ -645,7 +600,7 @@ static inline unsigned long bswap (unsigned long a)
 	#elif defined(_MSC_VER)
 	return _byteswap_ulong(a);
 	#endif
-	#elif defined(__GNUC__)//gcc inline asm
+	#elif defined(__GNUC__) && !defined(NOASM)
 	__asm__ __volatile__
 	(
 		"bswap	%[a]\n"
@@ -654,7 +609,7 @@ static inline unsigned long bswap (unsigned long a)
 		:
 	);
 	return a;
-	#elif defined(_MSC_VER)
+	#elif defined(_MSC_VER) && !defined(NOASM)
 	_asm
 	{
 		mov	eax, a
@@ -665,9 +620,9 @@ static inline unsigned long bswap (unsigned long a)
 
 static inline void clearMMX () // inserts opcode emms, used to avoid many compiler checks
 {
-	#if defined(__GNUC__)
+	#if defined(__GNUC__) && !defined(NOASM)
 	__asm__ __volatile__ ("emms" : : : "cc");
-	#elif defined(_MSC_VER)
+	#elif defined(_MSC_VER) && !defined(NOASM)
 	_asm { emms }
 	#endif
 }
